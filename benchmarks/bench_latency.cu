@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <string>
 #include <cuda_fp16.h>
 #include <cublas_v2.h>
 #include "mla_config.cuh"
