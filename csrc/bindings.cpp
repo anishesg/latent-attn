@@ -206,11 +206,17 @@ torch::Tensor batched_fused_mla_forward(
                                       qk_rope_head_dim, num_heads, v_head_dim);
 
     TORCH_CHECK(q_absorbed.dim() == 3, "q_absorbed must be 3D (batch, num_heads, kv_lora_rank)");
+    TORCH_CHECK(q_rope.dim() == 3, "q_rope must be 3D (batch, num_heads, qk_rope_head_dim)");
     int batch    = q_absorbed.size(0);
     int seq_len  = kv_cache.size(0);
+    TORCH_CHECK(batch > 0, "batch_size must be positive, got ", batch);
+    TORCH_CHECK(q_rope.size(0) == batch,
+                "q_rope batch dim must match q_absorbed batch dim: ",
+                q_rope.size(0), " vs ", batch);
     TORCH_CHECK(q_absorbed.size(1) == num_heads && q_absorbed.size(2) == kv_lora_rank,
-                "q_absorbed shape mismatch");
-    TORCH_CHECK(q_rope.size(0) == batch && q_rope.size(1) == num_heads && q_rope.size(2) == qk_rope_head_dim,
+                "q_absorbed shape mismatch: expected (", batch, ", ", num_heads, ", ", kv_lora_rank,
+                ") got (", q_absorbed.size(0), ", ", q_absorbed.size(1), ", ", q_absorbed.size(2), ")");
+    TORCH_CHECK(q_rope.size(1) == num_heads && q_rope.size(2) == qk_rope_head_dim,
                 "q_rope shape mismatch");
     TORCH_CHECK(kv_cache.size(1) == kv_lora_rank + qk_rope_head_dim, "kv_cache dim1 mismatch");
 
